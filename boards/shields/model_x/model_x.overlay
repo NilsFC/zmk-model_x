@@ -1,0 +1,148 @@
+#include <dt-bindings/zmk/matrix_transform.h>
+#include <dt-bindings/led/led.h>
+#include <physical_layouts.dtsi>
+//#include "model_x_ansi101.dts"
+//#include "model_x_iso102.dts"
+#include "model_x_iso122.dts"
+
+
+&pinctrl {
+    spi1_default: spi1_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
+                <NRF_PSEL(SPIM_MOSI, 0, 6)>,
+                <NRF_PSEL(SPIM_MISO, 0, 20)>;
+        };
+    };
+
+    spi1_sleep: spi1_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
+                <NRF_PSEL(SPIM_MOSI, 0, 6)>,
+                <NRF_PSEL(SPIM_MISO, 0, 20)>;
+            low-power-enable;
+        };
+    };
+	
+	pwm0_default: pwm0_default {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 11)>;
+        };
+    };
+	
+    pwm0_sleep: pwm0_sleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 11)>;
+            low-power-enable;
+        };
+    };
+
+	pwm1_default: pwm1_default {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 4)>;
+        };
+    };
+	
+    pwm1_sleep: pwm1_sleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 4)>;
+            low-power-enable;
+        };
+    };
+	
+	pwm2_default: pwm2_default {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 6)>;
+        };
+    };
+	
+    pwm2_sleep: pwm2_sleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 6)>;
+            low-power-enable;
+        };
+    };
+
+};
+
+&pwm0 {
+    status = "okay";
+    pinctrl-0 = <&pwm0_default>;
+    pinctrl-1 = <&pwm0_sleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+&pwm1 {
+    status = "okay";
+    pinctrl-0 = <&pwm1_default>;
+    pinctrl-1 = <&pwm1_sleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+&pwm2 {
+    status = "okay";
+    pinctrl-0 = <&pwm2_default>;
+    pinctrl-1 = <&pwm2_sleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+&gpio0 {
+    extpwr_pull: extpwr_pull {
+        gpio-hog;
+        gpios = <13 GPIO_ACTIVE_HIGH>;  // might need to swap this or the next, not sure
+        output-low;
+        line-name = "Disable ext power pin";
+    };
+};
+
+&spi1 {
+    // Enable the SPI interface and configure the CS (Chip Select) pin
+    status = "okay";
+    pinctrl-0 = <&spi1_default>; // Default pin configuration
+    pinctrl-1 = <&spi1_sleep>;   // Low power pin configuration
+    pinctrl-names = "default", "sleep"; // Names of the pin configurations
+    //wakeup-source; 
+    cs-gpios = <&gpio0 17 GPIO_ACTIVE_LOW>; // Pin 0.17 for CS (Chip Select), active low
+
+    shift_reg: 595@0 {
+        // Configure the 74HC595 shift register
+        compatible = "zmk,gpio-595"; // Specify the compatible device
+        status = "okay";
+        //wakeup-source; 
+        gpio-controller;
+        spi-max-frequency = <400000>; // Maximum SPI frequency (4 MHz)
+        #gpio-cells = <2>;
+        reg = <0>; // SPI device address
+        #gpio-cells = <2>;
+        ngpios = <16>;
+    };
+
+};
+
+/ {
+    //chosen {
+    //    zmk,physical-layout = &iso102_ph_layout;
+    //};
+    
+    aliases {
+		pwm-led-numlock = &pwm_led0;
+        pwm-led-capslock = &pwm_led1;
+        pwm-led-scrolllock = &pwm_led2;
+    };
+
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 0 10000 PWM_POLARITY_INVERTED>;
+		};
+
+		pwm_led1: pwm_led_1 {
+			pwms = <&pwm1 0 10000 PWM_POLARITY_INVERTED>;
+		};
+
+		pwm_led2: pwm_led_2 {
+			pwms = <&pwm2 0 10000 PWM_POLARITY_INVERTED>;
+		};
+	};
+
+};

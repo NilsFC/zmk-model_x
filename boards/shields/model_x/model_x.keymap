@@ -1,0 +1,7 @@
+//#include "model_x_ansi101.keymap"
+//#include "model_x_iso102.keymap"
+#include "model_x_iso122.keymap"
+
+/ {
+
+};
