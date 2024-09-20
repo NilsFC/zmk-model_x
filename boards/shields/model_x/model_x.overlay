@@ -2,8 +2,8 @@
 #include <dt-bindings/led/led.h>
 #include <physical_layouts.dtsi>
 //#include "model_x_ansi101.dts"
-//#include "model_x_iso102.dts"
-#include "model_x_iso122.dts"
+#include "model_x_iso102.dts"
+//#include "model_x_iso122.dts"
 
 
 &pinctrl {
